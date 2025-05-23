@@ -1,0 +1,182 @@
+<div class="container">
+  <div class="form-container">
+    <h2>{{ isEditMode ? 'Update Student' : 'Add New Student' }}</h2>
+    
+    <!-- Error Message -->
+    <div class="error-alert" *ngIf="errorMessage">
+      <p>{{ errorMessage }}</p>
+    </div>
+    
+    <!-- Loading Indicator -->
+    <div class="loading" *ngIf="isLoading">
+      <p>Processing...</p>
+    </div>
+    
+    <form [formGroup]="studentForm" (ngSubmit)="onSubmit()">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="firstName">First Name *</label>
+          <input 
+            type="text" 
+            id="firstName" 
+            formControlName="firstName" 
+            [class.error]="firstName?.invalid && firstName?.touched"
+          >
+          <div class="error-message" *ngIf="firstName?.invalid && firstName?.touched">
+            <small *ngIf="firstName?.errors?.['required']">First name is required</small>
+            <small *ngIf="firstName?.errors?.['minlength']">First name must be at least 2 characters</small>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="lastName">Last Name *</label>
+          <input 
+            type="text" 
+            id="lastName" 
+            formControlName="lastName"
+            [class.error]="lastName?.invalid && lastName?.touched"
+          >
+          <div class="error-message" *ngIf="lastName?.invalid && lastName?.touched">
+            <small *ngIf="lastName?.errors?.['required']">Last name is required</small>
+            <small *ngIf="lastName?.errors?.['minlength']">Last name must be at least 2 characters</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="address">Address *</label>
+        <textarea 
+          id="address" 
+          formControlName="address" 
+          rows="3"
+          [class.error]="address?.invalid && address?.touched"
+        ></textarea>
+        <div class="error-message" *ngIf="address?.invalid && address?.touched">
+          <small *ngIf="address?.errors?.['required']">Address is required</small>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="grade">Grade *</label>
+          <select 
+            id="grade" 
+            formControlName="grade"
+            [class.error]="grade?.invalid && grade?.touched"
+          >
+            <option value="">Select Grade</option>
+            <option value="1st">1st Grade</option>
+            <option value="2nd">2nd Grade</option>
+            <option value="3rd">3rd Grade</option>
+            <option value="4th">4th Grade</option>
+            <option value="5th">5th Grade</option>
+            <option value="6th">6th Grade</option>
+            <option value="7th">7th Grade</option>
+            <option value="8th">8th Grade</option>
+            <option value="9th">9th Grade</option>
+            <option value="10th">10th Grade</option>
+            <option value="11th">11th Grade</option>
+            <option value="12th">12th Grade</option>
+          </select>
+          <div class="error-message" *ngIf="grade?.invalid && grade?.touched">
+            <small *ngIf="grade?.errors?.['required']">Grade is required</small>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="phoneNumber">Phone Number *</label>
+          <input 
+            type="tel" 
+            id="phoneNumber" 
+            formControlName="phoneNumber"
+            placeholder="e.g., +1-234-567-8900"
+            [class.error]="phoneNumber?.invalid && phoneNumber?.touched"
+          >
+          <div class="error-message" *ngIf="phoneNumber?.invalid && phoneNumber?.touched">
+            <small *ngIf="phoneNumber?.errors?.['required']">Phone number is required</small>
+            <small *ngIf="phoneNumber?.errors?.['pattern']">Please enter a valid phone number</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="dateOfBirth">Date of Birth *</label>
+        <input 
+          type="date" 
+          id="dateOfBirth" 
+          formControlName="dateOfBirth"
+          [class.error]="dateOfBirth?.invalid && dateOfBirth?.touched"
+        >
+        <div class="error-message" *ngIf="dateOfBirth?.invalid && dateOfBirth?.touched">
+          <small *ngIf="dateOfBirth?.errors?.['required']">Date of birth is required</small>
+        </div>
+      </div>
+
+      <div class="button-group">
+        <button 
+          type="submit" 
+          class="btn btn-primary" 
+          [disabled]="studentForm.invalid || isLoading"
+        >
+          {{ isLoading ? 'Processing...' : (isEditMode ? 'Update Student' : 'Submit') }}
+        </button>
+        <button 
+          type="button" 
+          class="btn btn-secondary" 
+          (click)="resetForm()" 
+          *ngIf="!isEditMode"
+          [disabled]="isLoading"
+        >
+          Reset
+        </button>
+        <button 
+          type="button" 
+          class="btn btn-secondary" 
+          (click)="cancelEdit()" 
+          *ngIf="isEditMode"
+          [disabled]="isLoading"
+        >
+          Cancel
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Students List -->
+  <div class="students-container">
+    <h2>All Students ({{ students.length }})</h2>
+    
+    <div *ngIf="students.length === 0" class="no-students">
+      <p>No students found. Add your first student using the form above.</p>
+    </div>
+    
+    <div class="students-grid" *ngIf="students.length > 0">
+      <div class="student-card" *ngFor="let student of students">
+        <div class="student-info">
+          <h3>{{ student.firstName }} {{ student.lastName }}</h3>
+          <p><strong>ID:</strong> {{ student.id }}</p>
+          <p><strong>Grade:</strong> {{ student.grade }}</p>
+          <p><strong>Phone:</strong> {{ student.phoneNumber }}</p>
+          <p><strong>DOB:</strong> {{ student.dateOfBirth }}</p>
+          <p><strong>Address:</strong> {{ student.address }}</p>
+        </div>
+        <div class="student-actions">
+          <button 
+            class="btn btn-edit" 
+            (click)="onEdit(student)"
+            [disabled]="isLoading"
+          >
+            <i class="icon-edit"></i> Edit
+          </button>
+          <button 
+            class="btn btn-delete" 
+            (click)="onDelete(student.id)"
+            [disabled]="isLoading"
+          >
+            <i class="icon-delete"></i> Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
